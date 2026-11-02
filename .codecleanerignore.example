@@ -1,0 +1,5 @@
+# Copy to PROJECT/.codecleanerignore. Relative fnmatch globs, not gitignore syntax.
+generated/
+*.min.js
+# Uncomment to exclude tests:
+# tests/

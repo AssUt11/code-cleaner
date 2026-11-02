@@ -1,0 +1,10 @@
+{
+  "checks": ["structure", "dead", "duplicates"],
+  "exclude": ["generated/*", "*.min.js"],
+  "max_lines": 500,
+  "max_depth": 6,
+  "min_lines": 6,
+  "threshold": 0.85,
+  "max_comparisons": 50000,
+  "max_findings": 200
+}

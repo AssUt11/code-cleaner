@@ -1,0 +1,30 @@
+# Python / tooling
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+
+# Releases and generated reports
+*.zip
+.code-cleaner-stage-*/
+.code-cleaner.backup-*/
+review.md
+report.json
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local project data and credentials
+.workbuddy/
+.env
+.env.*
+!.env.example

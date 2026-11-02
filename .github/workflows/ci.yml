@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.10', '3.14']
+    env:
+      PYTHONUTF8: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run behavioral tests
+        run: python -B -m unittest discover -s tests -v
+      - name: Validate Skill release files
+        run: python -B tools/validate_skill.py
+      - name: Smoke-test CLI
+        run: python -B scripts/run_review.py . --checks structure,dead --format markdown --fail-on warning
+      - name: Build release ZIP
+        run: python -B tools/package_release.py --output ../code-cleaner-${{ matrix.os }}-${{ matrix.python }}.zip

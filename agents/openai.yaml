@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Cleaner"
+  short_description: "只读检查项目结构、未使用代码和重复逻辑，复核后在授权范围内整理代码"
+  default_prompt: "使用 $code-cleaner 只读检查当前项目，复核候选问题并给出带行号的处理建议。"
