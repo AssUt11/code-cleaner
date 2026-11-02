@@ -1,51 +1,53 @@
-# CLI 参考
+# CLI reference
 
-要求 Python 3.10+，无第三方运行依赖。所有扫描器只读，不执行项目代码。以下命令在 Skill 根目录运行。
+**English** | [简体中文](cli.zh-CN.md) | [日本語](cli.ja.md)
 
-## 统一扫描
+Requires Python 3.10+ with no third-party runtime dependencies. Scanners are read-only and do not execute project code. Run the following commands from the Skill directory.
+
+## Unified scanner
 
 ```bash
-python scripts/run_review.py PROJECT [选项]
+python scripts/run_review.py PROJECT [OPTIONS]
 ```
 
-| 选项 | 默认值 | 含义 |
+| Option | Default | Description |
 |---|---|---|
-| `--checks` | `structure,dead,duplicates` | 逗号分隔的检测维度 |
+| `--checks` | `structure,dead,duplicates` | Comma-separated checks |
 | `--format` | `json` | `json` / `markdown` |
-| `--output PATH` | 标准输出 | 显式写入报告；父目录需已存在 |
-| `--config PATH` | 项目根目录 `.codecleaner.json`（若存在） | JSON 配置；未知字段或错误类型会报错 |
-| `--exclude GLOB` | 无额外规则 | 可重复；追加到配置中的 exclude |
-| `--max-lines` | `500` | 单文件行数阈值，正整数 |
-| `--max-depth` | `6` | 相对目录深度阈值，非负整数 |
-| `--min-lines` | `6` | 重复窗口的归一化代码行数，至少 2 |
-| `--threshold` | `0.85` | 有序窗口匹配阈值，范围 `[0.5, 1]` |
-| `--max-comparisons` | `50000` | 重复候选比较上限，正整数 |
-| `--max-findings` | `200` | 重复检测结果上限，正整数 |
+| `--output PATH` | Standard output | Explicit report destination; the parent directory must exist |
+| `--config PATH` | `PROJECT/.codecleaner.json`, if present | JSON configuration; unknown fields and invalid types are errors |
+| `--exclude GLOB` | No additional rules | Repeatable; appends to configured exclusions |
+| `--max-lines` | `500` | File-length threshold; positive integer |
+| `--max-depth` | `6` | Relative directory-depth threshold; nonnegative integer |
+| `--min-lines` | `6` | Normalized lines per duplicate window; at least 2 |
+| `--threshold` | `0.85` | Ordered-window similarity threshold in `[0.5, 1]` |
+| `--max-comparisons` | `50000` | Duplicate comparison limit; positive integer |
+| `--max-findings` | `200` | Duplicate result limit; positive integer |
 | `--fail-on` | `none` | `none` / `info` / `warning` / `error` |
-| `--version` | — | 显示工具版本 |
+| `--version` | — | Print the tool version |
 
-JSON 配置使用对应下划线字段，例如 `max_lines`；`checks`、`exclude` 均为字符串数组。配置仅由统一入口读取。
+JSON keys use underscores, such as `max_lines`. Both `checks` and `exclude` are arrays of strings. Only the unified scanner reads JSON configuration.
 
-## 忽略规则
+## Ignore rules
 
-所有检测器读取项目根目录 `.codecleanerignore`：每行一个相对路径 glob，路径分隔符统一为 `/`。使用 Python `fnmatch` 语义，`*` 可以匹配路径分隔符；目录前缀也参与匹配。`generated/` 跳过该目录，`tests/*` 跳过测试文件，`*.min.js` 跳过任意深度的匹配文件。`#` 开头为注释；不实现 Git 的反选、转义或完整 `.gitignore` 语义。
+All scanners read `.codecleanerignore` from the project root: one relative glob per line, using `/` as the path separator. Matching follows Python `fnmatch` semantics: `*` can match path separators, and directory prefixes are checked too. `generated/` skips that directory, `tests/*` skips test files, and `*.min.js` matches at any depth. Lines beginning with `#` are comments. Git negation, escaping, and full `.gitignore` semantics are not implemented.
 
-内置跳过规则不可通过配置取消：第三方目录、虚拟环境、构建产物、隐藏目录、`.workbuddy/` 和符号链接/目录联接。根目录应指向真正要扫描的项目，不要把依赖目录本身作为根目录。
+Built-in exclusions cannot be disabled through configuration: dependency directories, virtual environments, build outputs, hidden directories, `.workbuddy/`, symbolic links, and junctions are skipped. Point the scanner at the actual project, rather than using a dependency directory as its root.
 
-## JSON 格式（schema_version 1）
+## JSON format (schema_version 1)
 
-顶层含 `schema_version`、`version`、`root`、`complete`、`total_findings`、`counts`、`diagnostics`、`findings`。
+Top-level fields: `schema_version`, `version`, `root`, `complete`, `total_findings`, `counts`, `diagnostics`, and `findings`.
 
-每个 finding 含 `rule_id`、`type`、`path`、`line`、`severity`、`confidence`、`detail`、`suggestion`。路径相对于项目根目录，行号从 1 开始。重复代码还含 `path_b`、`line_b`、`end_line`、`end_line_b`、`similarity`。位置覆盖原始源码，归一化不会改变报告行号。
+Each finding includes `rule_id`, `type`, `path`, `line`, `severity`, `confidence`, `detail`, and `suggestion`. Paths are relative to the project root; line numbers start at 1. Duplicates also include `path_b`, `line_b`, `end_line`, `end_line_b`, and `similarity`. Positions refer to the original source, despite normalization.
 
-- `severity`：`error` / `warning` / `info`；按影响定级，规则结果不等同已确认 bug。
-- `confidence`：`high` / `medium` / `low`；表示静态推断把握，不代替人工复核。
-- `diagnostics`：读取、解析或上限信息，每项含 `path` 和 `message`。非空时 `complete` 为 false。
-- 退出码：0 = 完整且未达失败级别；1 = 完整且触发级别；2 = 参数、配置、I/O 错误或扫描不完整。不要忽略退出码 2。
+- `severity`: `error` / `warning` / `info`. Classification reflects impact; rule output is not proof of a bug.
+- `confidence`: `high` / `medium` / `low`. Confidence in a static inference does not replace review.
+- `diagnostics`: read, parse, or limit information. Each item contains `path` and `message`. A nonempty list makes `complete` false.
+- Exit codes: 0 = complete and below the failure level; 1 = complete with findings at the failure level; 2 = argument, configuration, I/O, or incomplete-scan errors. Handle exit code 2 explicitly.
 
-规则 ID：`structure.depth`、`structure.lines`、`structure.definitions`、`structure.empty`、`structure.naming`、`dead.import`、`dead.definition`、`duplicates.window`。
+Rule IDs: `structure.depth`, `structure.lines`, `structure.definitions`, `structure.empty`, `structure.naming`, `dead.import`, `dead.definition`, and `duplicates.window`.
 
-## 独立检测器
+## Individual scanners
 
 ```bash
 python scripts/analyze_structure.py PROJECT --max-lines 600 --max-depth 6
@@ -53,9 +55,9 @@ python scripts/detect_dead_code.py PROJECT --exclude "generated/*"
 python scripts/find_duplicates.py PROJECT --min-lines 8 --threshold 0.9
 ```
 
-它们直接输出相同 schema 的 JSON，但不应用 JSON 配置，也不提供 CI 级别判定；扫描诊断请检查 `complete`。CI 使用 `run_review.py`。
+They emit the same JSON schema, but do not apply JSON configuration or CI severity thresholds. Check `complete` for diagnostics. Use `run_review.py` for CI.
 
-## 安装器
+## Installer
 
 ```bash
 python install.py codex --dry-run
@@ -64,4 +66,4 @@ python install.py --all --force
 python install.py --target ./local-skills --no-symlink
 ```
 
-`--target` 是父目录，会在其下创建 `code-cleaner/`；它与平台名、`--all` 不混用。`--force` 显式替换并保留旧版本；无覆盖授权时拒绝已有目标。暂存失败时旧安装不变；发布重命名失败时尝试恢复旧安装，保留下来的备份可用于手工恢复。`--dry-run` 不创建目录、不安装。成功返回 0，任一目标失败返回 1，参数错误返回 2。
+`--target` specifies a parent directory; the installer creates `code-cleaner/` beneath it. Do not combine it with platform names or `--all`. `--force` explicitly replaces an existing target and keeps the old version. Without replacement authorization, existing targets are refused. Staging failures leave the old installation intact. A failed final rename triggers an attempt to restore it; retained backups can also be restored manually. `--dry-run` creates no directories or installations. Exit code 0 means success, 1 means at least one target failed, and 2 means invalid arguments.

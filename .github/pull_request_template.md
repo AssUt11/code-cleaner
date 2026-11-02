@@ -1,9 +1,11 @@
-## 解决的问题与修改后的行为
+## Problem and resulting behavior
 
-## 验证
+English, 简体中文, and 日本語 are welcome.
 
-- [ ] 相关行为回归测试通过
-- [ ] Skill / 文档引用与版本检查通过
-- [ ] 已说明启发式限制或 JSON schema 变化（如适用）
+## Validation
 
-## 其他影响
+- [ ] Relevant behavioral regression tests pass
+- [ ] Skill / documentation links and version checks pass
+- [ ] Heuristic limitations or JSON schema changes are documented, if applicable
+
+## Other impacts

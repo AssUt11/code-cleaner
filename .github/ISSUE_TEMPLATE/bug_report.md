@@ -1,21 +1,23 @@
 ---
-name: Bug report / 误报反馈
-about: 报告崩溃、漏报、误报或安装问题
+name: Bug report
+about: Report a crash, false positive, missed finding, or installation problem
 title: ""
 labels: ""
 assignees: ""
 ---
 
-## 环境
+Please write in English, 简体中文, or 日本語.
 
-- Code Cleaner 版本：
-- Python 版本 / 操作系统：
-- 执行命令与配置：
+## Environment
 
-## 最小复现
+- Code Cleaner version:
+- Python version / operating system:
+- Command and configuration:
 
-提供可公开的最小源码样例，不要粘贴真实密钥、私有仓库源码或个人信息。
+## Minimal reproduction
 
-## 预期与实际行为
+Provide a small example you can share publicly. Remove real credentials, private repository code, and personal information.
 
-包括退出码、JSON diagnostics 或相关报错信息。
+## Expected and actual behavior
+
+Include the exit code, JSON diagnostics, or relevant error output.

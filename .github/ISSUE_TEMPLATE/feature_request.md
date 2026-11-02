@@ -1,13 +1,15 @@
 ---
-name: Feature request / 功能建议
-about: 描述希望改善的具体使用场景
+name: Feature request
+about: Describe a concrete workflow you would like to improve
 title: ""
 labels: ""
 assignees: ""
 ---
 
-## 使用场景与当前困难
+Please write in English, 简体中文, or 日本語.
 
-## 希望的行为
+## Use case and current difficulty
 
-## 可公开的源码样例与能力边界
+## Expected behavior
+
+## Publicly shareable example and coverage boundaries

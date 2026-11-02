@@ -1,25 +1,32 @@
-# 更新记录
+# Changelog
+
+**English** | [简体中文](CHANGELOG.zh-CN.md) | [日本語](CHANGELOG.ja.md)
+
+## Unreleased
+
+- Make English the default documentation language, with Simplified Chinese and Japanese versions of the README, CLI reference, contribution guide, and changelog.
+- Use English by default in GitHub issue and pull request templates.
 
 ## 1.1.0 — 2026-11-02
 
-### 新增
+### Added
 
-- 统一只读扫描入口，JSON / Markdown 报告、规则 ID、行号、置信度、建议及扫描诊断。
-- JSON 项目配置、专用忽略文件、可重复的排除参数和 CI 失败级别。
-- 重复检测的有序滑动窗口、候选索引、比较次数和结果数量上限。
-- 安装预演、显式覆盖、旧版本备份和暂存失败恢复。
-- 行为回归测试、GitHub Actions、贡献指南、问题 / PR 模板、发布校验和 ZIP 打包工具。
+- A unified read-only scanner with JSON / Markdown reports, rule IDs, line numbers, confidence, suggestions, and diagnostics.
+- JSON project configuration, a dedicated ignore file, repeatable exclusion options, and CI failure levels.
+- Ordered sliding windows, candidate indexing, and comparison/result limits for duplicate detection.
+- Installation previews, explicit replacement, old-version backups, and staged installation recovery.
+- Behavioral regression tests, GitHub Actions, contribution guidance, issue / PR templates, release validation, and ZIP packaging.
 
-### 修复
+### Fixed
 
-- 安装目标与源目录重合时可能删除源目录。
-- JS/TS 导入结构不一致导致解包崩溃；非 Python 引用集合为空导致误报。
-- Python 跨文件同名引用掩盖未使用导入，方法调用被误判为未使用定义。
-- 嵌入较长代码段中的重复片段漏报、相似度忽略行顺序。
-- Java / React 大写文件名以及空 `__init__.py` 的不当清理建议。
+- Source deletion risk when the installation destination overlapped the source directory.
+- JS/TS import unpacking crashes and false positives caused by missing non-Python reference data.
+- Cross-file Python names hiding unused imports, and methods being treated as unused definitions.
+- Missed duplicate fragments within longer blocks and similarity checks ignoring line order.
+- Inappropriate cleanup suggestions for Java / React capitalized filenames and empty `__init__.py` files.
 
-### 调整
+### Changed
 
-- 精简 Skill 元数据和工作流，不再承诺任意平台扩展字段均能兼容。
-- 明确启发式分析、动态调用和安全审计的覆盖边界。
-- 未使用导入、空文件等候选不再默认作为可自动删除项。
+- Simplified Skill metadata and workflow without assuming every client accepts arbitrary extension fields.
+- Documented the coverage limits of heuristic checks, dynamic calls, and security review.
+- Unused imports and empty-file candidates are no longer treated as safe automatic deletions.

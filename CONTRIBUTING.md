@@ -1,32 +1,35 @@
-# 贡献指南
+# Contributing
 
-欢迎提交 bug 修复、减少误报的真实用例及有明确边界的检测能力。先保证结果可复核，再扩大覆盖范围。
+**English** | [简体中文](CONTRIBUTING.zh-CN.md) | [日本語](CONTRIBUTING.ja.md)
 
-## 本地验证
+Contributions are welcome: bug fixes, reproducible false-positive examples, and checks with clearly defined coverage. Prioritize reviewable results before expanding detection.
 
-使用 Python 3.10+，无需安装运行依赖：
+## Local checks
+
+Use Python 3.10+. No runtime packages need to be installed:
 
 ```bash
 python -B -m unittest discover -s tests -v
 python -B tools/validate_skill.py
 ```
 
-测试在仓库同级创建并清理独立临时目录，不安装到个人平台目录。Windows 未授予符号链接权限时，相关真实链接测试会显示 skipped；复制回退仍会测试。
+Tests create and clean up isolated temporary directories beside the repository; they never install into real client directories. On Windows, real-symlink tests may be skipped when permission is unavailable. Copy fallback remains covered.
 
-## 提交要求
+## Submission guidelines
 
-- 修复检测问题时提供最小源码样例，并断言可观察行为：候选是否出现、原始行号、诊断和退出码。
-- 不通过隐藏误报样例或放宽断言让测试通过。启发式检测的限制写进 README。
-- 保持扫描只读，不执行被扫描代码，不引入源码上传或自动删除。
-- 优先标准库；新依赖需要说明必要性、安装影响及许可证。
-- JSON schema 的破坏性调整需要更新 schema_version、文档和回归测试。
-- 修改版本时同步 `scripts/_common.py`、`SKILL.md` 和 `CHANGELOG.md`。
-- PR 说明问题、修改后的行为和实际验证结果；不要提交缓存、扫描报告或真实密钥。
+- Issues and pull requests may be written in English, Simplified Chinese, or Japanese.
+- Include a minimal source example for detection fixes. Assert observable behavior: whether a candidate appears, original line numbers, diagnostics, and exit codes.
+- Do not hide reproductions or weaken assertions to make tests pass. Document heuristic limitations in the README translations.
+- Keep scanning read-only. Do not execute scanned code, upload source, or introduce automatic deletion.
+- Prefer the standard library. Explain the necessity, installation impact, and license of any new dependency.
+- Breaking JSON schema changes require updates to schema_version, documentation, and regression coverage.
+- When changing the version, update `scripts/_common.py`, `SKILL.md`, and all changelog translations together.
+- Describe the problem, resulting behavior, and actual validation in the PR. Exclude caches, generated reports, and real credentials.
 
-## 发布
+## Release process
 
-1. 运行测试与 Skill 校验；检查版本和更新记录。
-2. 运行 `python tools/package_release.py --output ../code-cleaner.zip`。
-3. 在 GitHub 检查跨系统 CI 的真实结果，再创建标签 / Release 并附加 ZIP。
+1. Run tests and Skill validation; check version consistency and changelogs.
+2. Run `python tools/package_release.py --output ../code-cleaner.zip`.
+3. Check the actual cross-platform GitHub Actions results, then create a tag / Release and attach the ZIP.
 
-发布和推送由维护者明确执行；工具不会自动创建仓库、提交或上传文件。
+Maintainers explicitly perform publishing and pushing. The tools do not create repositories, commit, or upload files automatically.

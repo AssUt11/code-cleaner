@@ -13,7 +13,7 @@ from _common import VERSION
 def validate(root=ROOT):
     root = Path(root).resolve()
     errors = []
-    required = ["SKILL.md", "README.md", "LICENSE", "CHANGELOG.md", "install.py",
+    required = ["SKILL.md", "README.md", "README.zh-CN.md", "README.ja.md", "LICENSE", "CHANGELOG.md", "install.py",
                 "scripts/run_review.py", "scripts/_common.py", "tests/test_review.py",
                 "references/cli.md", "agents/openai.yaml"]
     for relative in required:
@@ -43,7 +43,10 @@ def validate(root=ROOT):
     if changelog.is_file() and f"## {VERSION}" not in changelog.read_text(encoding="utf-8"):
         errors.append("CHANGELOG.md is missing the current version")
     # Check maintained entrypoint/docs links, leaving external URLs and examples alone.
-    for document in (skill, root / "README.md"):
+    documents = [skill]
+    for pattern in ("README*.md", "CONTRIBUTING*.md", "CHANGELOG*.md", "references/cli*.md"):
+        documents.extend(sorted(root.glob(pattern)))
+    for document in documents:
         if not document.is_file():
             continue
         for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", document.read_text(encoding="utf-8")):

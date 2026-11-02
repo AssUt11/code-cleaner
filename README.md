@@ -1,47 +1,51 @@
 # Code Cleaner
 
-让 AI 帮你审查代码，同时保留人的判断：**默认只读，给出证据，经授权后再修改。**
+**English** | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-Code Cleaner 是一个可安装的 Agent Skill，也是一组可独立运行的 Python 命令行工具。支持 Python、JavaScript / TypeScript（含 JSX、TSX）和 Java；运行时仅依赖 Python 3.10+ 标准库。
+AI-assisted code review with human judgment: **read-only by default, evidence before changes, and edits within your authorization.**
 
-[使用说明](references/cli.md) · [贡献指南](CONTRIBUTING.md) · [更新记录](CHANGELOG.md) · [MIT 许可证](LICENSE)
+Code Cleaner is an installable Agent Skill and a set of standalone Python command-line tools. It supports Python, JavaScript / TypeScript (including JSX and TSX), and Java. Runtime requirements: Python 3.10+ and the standard library.
 
-## 能做什么
+[CLI reference](references/cli.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [MIT license](LICENSE)
 
-- **项目结构检查**：文件行数、目录深度、定义数量、空文件及含空格的文件名；保留 Java / React 的大写命名约定和空的 `__init__.py`。
-- **未使用代码候选**：Python AST + 符号表检查导入的作用域和顶层定义；JS/TS/Java 使用启发式导入与引用统计。
-- **重复代码候选**：按有序归一化代码行生成滑动窗口，识别嵌在更长代码段中的重复片段；索引筛选候选，支持比较次数与结果数量上限。
-- **统一报告**：JSON / Markdown，包含原始行号、规则 ID、严重级别、置信度和修复建议。
-- **项目定制**：`.codecleaner.json` 配置、`.codecleanerignore` 忽略规则、CLI 参数覆盖。
-- **CI 集成**：可设置失败级别；读取失败、语法错误和结果截断均明确标记为不完整。
-- **安全安装**：源/目标重合保护、预演、显式覆盖、暂存安装、保留旧版本和失败恢复。
+## Features
 
-结构、死代码和重复代码由脚本辅助；坏味道、安全和性能问题需要 AI 阅读上下文后判断。扫描脚本不修改源码、不执行被扫描代码，也不联网。
+- **Project structure:** file length, directory depth, definition counts, empty files, and filenames containing spaces. Java / React capitalized filenames and empty `__init__.py` files are preserved.
+- **Unused-code candidates:** Python AST and symbol tables check import scopes and top-level definitions; JS/TS/Java use heuristic import and reference analysis.
+- **Duplicate-code candidates:** ordered, normalized sliding windows find matching fragments inside longer blocks. An index filters candidates, with configurable comparison and result limits.
+- **Unified reports:** JSON / Markdown with original line numbers, rule IDs, severity, confidence, and suggested actions.
+- **Project configuration:** `.codecleaner.json`, `.codecleanerignore`, and CLI overrides.
+- **CI integration:** configurable failure severity and explicit diagnostics for read errors, syntax errors, and truncated results.
+- **Recoverable installation:** source/destination overlap checks, dry runs, explicit replacement, staging, backups, and failure recovery.
 
-## 快速试用
+Scripts assist with structure, unused code, and duplicates. Code smells, security, and performance require an AI or human reviewer to inspect the context. Scanners do not modify source files, execute scanned code, or access the network.
 
-克隆或下载仓库，进入包含 `SKILL.md` 的目录后运行：
+## Quick start
+
+Clone the repository and run the scanner from its root:
 
 ```bash
+git clone https://github.com/AssUt11/code-cleaner.git
+cd code-cleaner
 python scripts/run_review.py /path/to/project --format markdown
 python scripts/run_review.py /path/to/project --format json --output report.json
 ```
 
-Windows 路径有空格时加引号：
+Quote Windows paths containing spaces:
 
 ```powershell
 python scripts/run_review.py "D:\My Project" --format markdown
 ```
 
-AI 对话示例：
+Example prompts for your AI assistant:
 
 ```text
-使用 code-cleaner 检查这个项目，先只读报告，按影响给出修复顺序。
-筛查死代码和重复代码，排除 generated 目录。
-修复报告中已确认的问题，保留公开 API，并运行相关测试。
+Use code-cleaner to review this project. Start with a read-only report and prioritize findings by impact.
+Find unused code and duplicates, excluding the generated directory.
+Fix the confirmed findings, preserve public APIs, and run the relevant tests.
 ```
 
-## 安装为 Skill
+## Install as a Skill
 
 ```bash
 python install.py codex --dry-run
@@ -50,26 +54,26 @@ python install.py claude workbuddy
 python install.py --all
 ```
 
-| 目标 | 默认父目录 |
+| Target | Default parent directory |
 |---|---|
 | Codex | `~/.agents/skills/` |
 | Claude Code | `~/.claude/skills/` |
 | WorkBuddy | `~/.workbuddy/skills/` |
 
-安装到父目录下的 `code-cleaner/`。目标布局供对应客户端发现 Skill；实际加载方式以客户端支持为准。Skill 的 `name`、`description`、`license`、`metadata` 使用 [Agent Skills 标准字段](https://agentskills.io/specification)，不再假定各客户端都会忽略任意扩展字段。
+The installer creates `code-cleaner/` inside the selected parent directory. Discovery and loading depend on the client. The Skill uses the `name`, `description`, `license`, and `metadata` fields from the [Agent Skills specification](https://agentskills.io/specification).
 
-默认优先符号链接，权限不允许时复制。符号链接安装会随源目录更新；复制安装需重新安装。已有目标不会被静默覆盖：
+Installation prefers a symbolic link and falls back to copying if permission is unavailable. A linked installation follows updates to the source directory; a copied installation needs to be installed again. Existing targets require explicit replacement:
 
 ```bash
 python install.py codex --force
 python install.py --target /custom/skills --no-symlink --dry-run
 ```
 
-`--force` 会保留同级 `.code-cleaner.backup-时间-随机值` 备份。恢复时先移走当前 `code-cleaner`，再把备份重命名为 `code-cleaner`；备份为符号链接时保留它所指向的旧源目录。自安装、父子目录重合会被拒绝。
+`--force` keeps a sibling backup named `.code-cleaner.backup-TIMESTAMP-ID`. To restore it, move the current `code-cleaner` aside and rename the backup to `code-cleaner`. If the backup is a symbolic link, retain its original source directory. Installing into the source directory or an overlapping parent/child path is refused.
 
-## 项目配置与忽略规则
+## Configuration and ignore rules
 
-将 `.codecleaner.example.json` 复制为被扫描项目根目录的 `.codecleaner.json`，按需调整；统一入口自动读取该配置。示例：
+Copy `.codecleaner.example.json` to `.codecleaner.json` in the scanned project's root and adjust it as needed. The unified scanner loads this file automatically:
 
 ```json
 {
@@ -84,34 +88,34 @@ python install.py --target /custom/skills --no-symlink --dry-run
 }
 ```
 
-也可在 `.codecleanerignore` 中每行写一个相对路径 glob；`#` 开头为注释，不支持 `!` 反选，不自动读取 `.gitignore`。CLI 标量覆盖 JSON 配置，`--exclude` 则追加到配置。第三方依赖、隐藏目录、`.workbuddy/`、虚拟环境、构建产物和链接默认跳过。
+Alternatively, put one relative glob per line in `.codecleanerignore`. Lines beginning with `#` are comments. Negation with `!` is unsupported, and `.gitignore` is not read automatically. Scalar CLI options override JSON values; `--exclude` appends to the configured list. Dependencies, hidden directories, `.workbuddy/`, virtual environments, build outputs, and links are skipped by default.
 
-## CI 与退出码
+## CI and exit codes
 
 ```bash
 python scripts/run_review.py /path/to/project --checks structure,dead --fail-on warning
 ```
 
-| 退出码 | 含义 |
+| Exit code | Meaning |
 |---|---|
-| `0` | 完整扫描，未达到失败级别；默认 `--fail-on none` 允许存在候选项 |
-| `1` | 完整扫描，存在达到 `--fail-on` 级别的问题 |
-| `2` | 参数/配置/写入错误，或扫描不完整，包括解析失败与结果截断 |
+| `0` | Scan completed without reaching the failure severity. The default `--fail-on none` allows candidates. |
+| `1` | Scan completed and findings reached the configured failure severity. |
+| `2` | Invalid arguments/configuration, output errors, or an incomplete scan, including parsing failures and truncated results. |
 
-`--fail-on info` 包含所有级别；`warning` 包含 warning / error；`error` 只包含 error。当前内置规则主要输出 warning / info，安全严重问题需人工或 AI 复核。三个独立检测脚本用于查看候选 JSON，CI 应使用统一入口。
+`--fail-on info` includes every severity; `warning` includes warning / error; `error` includes only error. Current built-in rules mainly produce warning / info findings; serious security issues require human or AI review. Use the unified entrypoint for CI; individual scanners provide candidate JSON.
 
-仓库自带 GitHub Actions，测试 Ubuntu / Windows 与 Python 3.10 / 3.14；该矩阵将在上传并启用 Actions 后运行，本地验证结果见实际测试输出。
+GitHub Actions covers Ubuntu / Windows with Python 3.10 / 3.14. [View CI runs](https://github.com/AssUt11/code-cleaner/actions).
 
-## 能力边界
+## Limitations
 
-- 结果是候选问题，**没有自动修复或自动删除命令**。导入副作用、公开 API、反射、插件注册、跨仓库调用不能仅凭静态计数判定。
-- Python 不报告类方法、嵌套定义和装饰器入口为死代码；动态导出和字符串中的动态引用仍可能误判。
-- JS/TS/Java 不是完整编译器分析，不解析模块别名、完整作用域或框架约定；CommonJS、动态导入等复杂语法覆盖有限。
-- 重复检测保留代码行顺序，但会归一化字符串与数字；近似匹配要求窗口共享相邻归一化代码行，不保证召回所有语义相似片段。
-- 索引无法消除高重复项目的最坏情况；达到上限会返回已有结果、`complete: false` 和退出码 `2`，请缩小范围或调高限制。
-- 所有支持文件应可读取；Python 支持编码声明及 UTF-8 BOM，其他语言按 UTF-8 读取。读取失败会报告诊断。
+- Findings are candidates. **There is no automatic fix or deletion command.** Static counts alone cannot establish whether imports have side effects or whether public APIs, reflection, plugin registration, or cross-repository calls use a symbol.
+- Python class methods, nested definitions, and decorated entrypoints are excluded from unused-definition candidates. Dynamic exports and references embedded in strings may still cause mistakes.
+- JS/TS/Java checks are heuristic rather than full compiler analysis. Module aliases, complete scopes, framework conventions, CommonJS, and dynamic imports have limited coverage.
+- Duplicate detection preserves line order while normalizing strings and numbers. Approximate matches require shared adjacent normalized lines; semantically similar code may be missed.
+- Indexing does not eliminate the worst case for highly repetitive projects. Reaching a limit returns available findings, `complete: false`, and exit code `2`. Narrow the scope or raise the limits.
+- Python encoding declarations and UTF-8 BOM are supported; other languages are read as UTF-8. Read failures appear in diagnostics.
 
-## 开发与发布
+## Development and releases
 
 ```bash
 python -B -m unittest discover -s tests -v
@@ -119,34 +123,26 @@ python -B tools/validate_skill.py
 python -B tools/package_release.py --output ../code-cleaner.zip
 ```
 
-验证器检查元数据、版本一致性和 Skill 本地引用；打包器校验后生成带 `code-cleaner/` 顶层目录的 ZIP，跳过 Git、缓存、依赖、已有 ZIP 和 `.workbuddy/`。完整源码、测试和 `.github/` 都包含在发布包内。
+The validator checks metadata, version consistency, and local documentation links. Packaging validates the Skill, then creates a ZIP with a top-level `code-cleaner/` directory. Git metadata, caches, dependencies, existing ZIPs, and `.workbuddy/` are excluded. Source files, tests, and `.github/` configuration are included.
 
-上传 GitHub 时，建议把**本目录中的文件和文件夹**作为仓库根目录内容，保留 `.github/`、`.gitignore` 等隐藏项；ZIP 可作为 Release 附件，单独上传 ZIP 不会触发源码 CI。
+When publishing a fork, place this directory's contents at the repository root, including hidden files such as `.github/` and `.gitignore`. Attach the ZIP to a Release if needed; uploading only a ZIP does not run source CI.
 
-```bash
-git init -b main
-git add .
-git commit -m "Prepare code-cleaner 1.1.0"
-# 在 GitHub 创建空仓库后，替换下面的地址
-git remote add origin <你的仓库地址>
-git push -u origin main
-```
-
-## 目录
+## Repository layout
 
 ```text
 code-cleaner/
-├── SKILL.md                 # AI 工作流与范围保护
-├── install.py               # 跨平台目标安装器
-├── scripts/                 # 统一入口、三个检测器、共享辅助模块
-├── references/              # CLI、代码坏味道、语言习惯、安全/性能清单
-├── assets/                  # 报告模板
-├── agents/openai.yaml       # Codex UI 元数据
-├── tests/                   # 行为回归测试
-├── tools/                   # 发布校验与打包
-└── .github/                 # CI、问题模板、PR 模板
+├── README*.md               # English, Simplified Chinese and Japanese documentation
+├── SKILL.md                 # AI workflow and scope protection
+├── install.py               # Installer for supported client directories
+├── scripts/                 # Unified CLI, three scanners and shared utilities
+├── references/              # CLI, code smells, language rules, security/performance
+├── assets/                  # Report template
+├── agents/openai.yaml       # Codex UI metadata
+├── tests/                   # Behavioral regression tests
+├── tools/                   # Release validation and packaging
+└── .github/                 # CI, issue templates and PR template
 ```
 
 ## License
 
-MIT，见 [LICENSE](LICENSE)。
+MIT. See [LICENSE](LICENSE).
